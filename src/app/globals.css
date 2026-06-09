@@ -1,15 +1,29 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.dark body {
   background-color: #020617;
   color: #f1f5f9;
 }
 
 .bg-grid {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.dark .bg-grid {
   background-image:
     linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
