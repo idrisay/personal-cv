@@ -9,7 +9,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { Github, Linkedin, Mail, MapPin, Phone, ChevronDown } from "lucide-react";
+import { Github, Linkedin, Mail, MapPin, Phone, ChevronDown, Sparkles } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 // ── data ──────────────────────────────────────────────────────────────────────
@@ -429,37 +429,76 @@ export default function Page() {
         <section id="skills" className="py-20 border-t border-slate-200 dark:border-slate-800/60">
           <SectionHeading index="02" title="Skills" />
           <div className="flex flex-col gap-6">
-            {CV.skills.map(({ category, items }, rowIdx) => (
-              <motion.div
-                key={category}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: rowIdx * 0.06, ease }}
-                className="grid md:grid-cols-[140px_1fr] gap-3 items-start"
-              >
-                <span className="text-slate-500 text-sm font-medium pt-0.5">{category}</span>
+            {CV.skills.map(({ category, items }, rowIdx) => {
+              const isAI = category === "AI Tooling";
+              return isAI ? (
                 <motion.div
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={{ visible: { transition: { staggerChildren: 0.045 } } }}
-                  className="flex flex-wrap gap-2"
+                  key={category}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: rowIdx * 0.06, ease }}
+                  className="rounded-2xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/30 px-5 py-4 flex flex-col gap-3"
                 >
-                  {items.map((item) => (
-                    <motion.span
-                      key={item}
-                      variants={{
-                        hidden: { opacity: 0, scale: 0.75 },
-                        visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 280, damping: 18 } },
-                      }}
-                    >
-                      <Pill>{item}</Pill>
-                    </motion.span>
-                  ))}
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={14} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
+                    <span className="text-indigo-700 dark:text-indigo-300 text-sm font-semibold">{category}</span>
+                    <span className="ml-auto text-[10px] font-semibold tracking-wide uppercase text-indigo-500 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 px-2 py-0.5 rounded-full">
+                      Daily use
+                    </span>
+                  </div>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={{ visible: { transition: { staggerChildren: 0.045 } } }}
+                    className="flex flex-wrap gap-2"
+                  >
+                    {items.map((item) => (
+                      <motion.span
+                        key={item}
+                        variants={{
+                          hidden: { opacity: 0, scale: 0.75 },
+                          visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 280, damping: 18 } },
+                        }}
+                      >
+                        <Pill>{item}</Pill>
+                      </motion.span>
+                    ))}
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            ))}
+              ) : (
+                <motion.div
+                  key={category}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: rowIdx * 0.06, ease }}
+                  className="grid md:grid-cols-[140px_1fr] gap-3 items-start"
+                >
+                  <span className="text-slate-500 text-sm font-medium pt-0.5">{category}</span>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={{ visible: { transition: { staggerChildren: 0.045 } } }}
+                    className="flex flex-wrap gap-2"
+                  >
+                    {items.map((item) => (
+                      <motion.span
+                        key={item}
+                        variants={{
+                          hidden: { opacity: 0, scale: 0.75 },
+                          visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 280, damping: 18 } },
+                        }}
+                      >
+                        <Pill>{item}</Pill>
+                      </motion.span>
+                    ))}
+                  </motion.div>
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 

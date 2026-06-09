@@ -39,10 +39,10 @@ echo ""
 
 if [[ "$PROD" == "--prod" ]]; then
   echo "▸ Deploying to PRODUCTION..."
-  npx wrangler pages deploy out --project-name=personal-cv --commit-dirty=true --branch=main
+  npx wrangler pages deploy --project-name=personal-cv --commit-dirty=true --branch=main
 else
   echo "▸ Deploying PREVIEW..."
-  npx wrangler pages deploy out --project-name=personal-cv --commit-dirty=true
+  npx wrangler pages deploy --project-name=personal-cv --commit-dirty=true
 fi
 
 echo ""
