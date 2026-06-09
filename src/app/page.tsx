@@ -48,6 +48,7 @@ const CV = {
         "Integrated Stripe to power subscription billing and recurring payments for the platform.",
         "Built an automated content-translation pipeline using DeepL's neural translation API to localise learning content across multiple languages.",
         "Designed and shipped REST API endpoints consumed by mobile app and partner integrations.",
+        "Leveraged AI tools (Cursor, Claude, GitHub Copilot) daily to accelerate feature integration and deliver more robust solutions at a faster pace.",
       ],
     },
     {
