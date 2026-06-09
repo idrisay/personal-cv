@@ -1,18 +1,33 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useInView,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { Github, Linkedin, Mail, MapPin, Phone, ChevronDown } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
+// ── data ──────────────────────────────────────────────────────────────────────
+
 const CV = {
-  name: "Idris Ay",
-  role: "Software Engineer",
-  tagline: "I build things for the web.",
-  location: "Zurich, Switzerland",
-  permit: "Swiss B Permit",
-  phone: "+41 77 257 21 36",
   email: "idrisaydev@gmail.com",
   github: "https://github.com/idrisay",
   linkedin: "https://linkedin.com/in/idris-ay",
+  phone: "+41 77 257 21 36",
+  location: "Zurich, Switzerland",
+  permit: "Swiss B Permit",
   summary:
     "Software engineer with 6+ years of experience building production web applications across the full stack. Strong in React, TypeScript, and modern frontend tooling, with solid backend depth in PHP/Laravel and Node.js. Currently shipping core features of an e-learning platform at Evulpo as part of a 30-person team. Previously led a frontend team on an EU-funded project and taught full-stack development to bootcamp cohorts. Comfortable owning features end to end — from design hand-off through deployment and monitoring.",
+  stats: [
+    { value: "6+", label: "Years experience" },
+    { value: "5", label: "Positions held" },
+    { value: "3", label: "Languages spoken" },
+  ],
   skills: [
     { category: "Languages", items: ["TypeScript", "JavaScript", "PHP", "Python", "HTML5", "CSS3", "SASS"] },
     { category: "Frontend", items: ["React", "Next.js", "React Native", "Tailwind CSS", "Material-UI", "Storybook"] },
@@ -88,12 +103,57 @@ const CV = {
   ],
 };
 
+// ── animation variants ────────────────────────────────────────────────────────
+
+const ease = [0.25, 0.1, 0.25, 1] as const;
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease, delay },
+  }),
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    transition: { duration: 0.5, delay },
+  }),
+};
+
+// ── components ────────────────────────────────────────────────────────────────
+
 function SectionHeading({ index, title }: { index: string; title: string }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
-    <div className="flex items-center gap-3 mb-10">
-      <span className="text-indigo-500 dark:text-indigo-400 font-mono text-sm font-medium">{index}.</span>
-      <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">{title}</h2>
-      <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800" />
+    <div ref={ref} className="flex items-center gap-3 mb-10 overflow-hidden">
+      <motion.span
+        initial={{ opacity: 0, x: -12 }}
+        animate={inView ? { opacity: 1, x: 0 } : {}}
+        transition={{ duration: 0.4, ease }}
+        className="text-indigo-500 dark:text-indigo-400 font-mono text-sm font-medium"
+      >
+        {index}.
+      </motion.span>
+      <motion.h2
+        initial={{ opacity: 0, x: -12 }}
+        animate={inView ? { opacity: 1, x: 0 } : {}}
+        transition={{ duration: 0.4, delay: 0.07, ease }}
+        className="text-xl font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap"
+      >
+        {title}
+      </motion.h2>
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={inView ? { scaleX: 1 } : {}}
+        transition={{ duration: 0.8, delay: 0.12, ease }}
+        style={{ originX: 0 }}
+        className="flex-1 h-px bg-slate-200 dark:bg-slate-800"
+      />
     </div>
   );
 }
@@ -106,26 +166,88 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Page() {
-  return (
-    <div className="bg-grid min-h-screen bg-white dark:bg-slate-950">
+// ── page ──────────────────────────────────────────────────────────────────────
 
-      {/* ── Nav ─────────────────────────────────────────────────────────── */}
-      <header className="fixed inset-x-0 top-0 z-50 backdrop-blur-lg bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/70 dark:border-slate-800/60">
+const NAV_SECTIONS = ["about", "skills", "experience", "education"] as const;
+
+export default function Page() {
+  // cursor spotlight
+  const mouseX = useMotionValue(-600);
+  const mouseY = useMotionValue(-600);
+  const spotlight = useMotionTemplate`radial-gradient(520px at ${mouseX}px ${mouseY}px, rgba(99,102,241,0.07), transparent 80%)`;
+
+  // active nav section
+  const [activeSection, setActiveSection] = useState("");
+  useEffect(() => {
+    const observers = NAV_SECTIONS.map((id) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const ob = new IntersectionObserver(
+        ([e]) => { if (e.isIntersecting) setActiveSection(id); },
+        { rootMargin: "-40% 0px -55% 0px" }
+      );
+      ob.observe(el);
+      return ob;
+    });
+    return () => observers.forEach((o) => o?.disconnect());
+  }, []);
+
+  // nav background on scroll
+  const { scrollY } = useScroll();
+  const navBg = useTransform(scrollY, [0, 80], [0, 1]);
+
+  return (
+    <div
+      className="min-h-screen bg-white dark:bg-slate-950 bg-grid"
+      onMouseMove={(e) => { mouseX.set(e.clientX); mouseY.set(e.clientY); }}
+    >
+      {/* cursor spotlight */}
+      <motion.div
+        className="pointer-events-none fixed inset-0 z-30 hidden lg:block"
+        style={{ background: spotlight }}
+      />
+
+      {/* ── Nav ───────────────────────────────────────────────────────── */}
+      <motion.header
+        style={{ "--nav-alpha": navBg } as React.CSSProperties}
+        className="fixed inset-x-0 top-0 z-50 backdrop-blur-lg bg-white/80 dark:bg-slate-950/80 border-b border-slate-200/70 dark:border-slate-800/60"
+      >
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="text-indigo-600 dark:text-indigo-400 font-mono font-bold text-lg tracking-tight">IA</span>
-          <nav className="hidden md:flex items-center gap-7 text-sm text-slate-600 dark:text-slate-400">
-            {["About", "Skills", "Experience", "Education"].map((s, i) => (
-              <a
+          <motion.span
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease }}
+            className="text-indigo-600 dark:text-indigo-400 font-mono font-bold text-lg tracking-tight"
+          >
+            IA
+          </motion.span>
+
+          <nav className="hidden md:flex items-center gap-7 text-sm">
+            {NAV_SECTIONS.map((s, i) => (
+              <motion.a
                 key={s}
-                href={`#${s.toLowerCase()}`}
-                className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                href={`#${s}`}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 * i + 0.2, duration: 0.4, ease }}
+                className={[
+                  "capitalize transition-colors",
+                  activeSection === s
+                    ? "text-indigo-600 dark:text-indigo-400"
+                    : "text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400",
+                ].join(" ")}
               >
                 <span className="text-indigo-500 font-mono mr-1">0{i + 1}.</span>{s}
-              </a>
+              </motion.a>
             ))}
           </nav>
-          <div className="flex items-center gap-2">
+
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease }}
+            className="flex items-center gap-2"
+          >
             <ThemeToggle />
             <a
               href={`mailto:${CV.email}`}
@@ -133,35 +255,77 @@ export default function Page() {
             >
               Hire Me
             </a>
-          </div>
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
+      {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section className="relative min-h-dvh flex flex-col items-center justify-center text-center px-6 pt-16 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-indigo-400/10 dark:bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-violet-400/8 dark:bg-violet-600/8 rounded-full blur-[80px] pointer-events-none" />
+        {/* animated blobs */}
+        <motion.div
+          animate={{ scale: [1, 1.12, 1], opacity: [0.1, 0.16, 0.1] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-indigo-400/20 dark:bg-indigo-600/15 rounded-full blur-[120px] pointer-events-none"
+        />
+        <motion.div
+          animate={{ scale: [1, 0.9, 1], opacity: [0.08, 0.14, 0.08] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-violet-400/20 dark:bg-violet-600/15 rounded-full blur-[100px] pointer-events-none"
+        />
 
-        <div className="relative z-10 max-w-4xl">
-          <p className="text-indigo-500 dark:text-indigo-400 font-mono text-sm tracking-[0.2em] uppercase mb-5">
+        <div className="relative z-10 max-w-4xl w-full">
+          <motion.p
+            custom={0}
+            variants={fadeIn}
+            initial="hidden"
+            animate="visible"
+            className="text-indigo-500 dark:text-indigo-400 font-mono text-sm tracking-[0.2em] uppercase mb-5"
+          >
             Hi, my name is
-          </p>
-          <h1 className="text-[clamp(3rem,12vw,8rem)] font-bold leading-none tracking-tight mb-4">
+          </motion.p>
+
+          <motion.h1
+            custom={0.1}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="text-[clamp(3rem,12vw,8rem)] font-bold leading-none tracking-tight mb-4"
+          >
             <span className="bg-gradient-to-br from-slate-900 via-slate-700 to-indigo-600 dark:from-white dark:via-slate-200 dark:to-indigo-300 bg-clip-text text-transparent">
               Idris Ay.
             </span>
-          </h1>
-          <h2 className="text-[clamp(1.5rem,5vw,3.5rem)] font-bold text-slate-400 dark:text-slate-500 mb-6 leading-tight">
-            {CV.tagline}
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-            Full-stack engineer based in Zurich — specialising in React, TypeScript, and modern web tooling.
-          </p>
+          </motion.h1>
 
-          <div className="flex items-center justify-center gap-3 flex-wrap">
+          <motion.h2
+            custom={0.25}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="text-[clamp(1.4rem,4.5vw,3rem)] font-bold text-slate-400 dark:text-slate-500 mb-6 leading-tight"
+          >
+            I build things for the web.
+          </motion.h2>
+
+          <motion.p
+            custom={0.38}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="text-slate-600 dark:text-slate-400 text-lg max-w-xl mx-auto mb-10 leading-relaxed"
+          >
+            Full-stack engineer based in Zurich — specialising in React, TypeScript, and modern web tooling.
+          </motion.p>
+
+          <motion.div
+            custom={0.5}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="flex items-center justify-center gap-3 flex-wrap"
+          >
             <a
               href={`mailto:${CV.email}`}
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20 dark:shadow-indigo-950/50"
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 dark:shadow-indigo-950/50"
             >
               <Mail size={15} /> Get In Touch
             </a>
@@ -169,7 +333,7 @@ export default function Page() {
               href={CV.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-xl text-sm font-medium transition-colors border border-slate-200 dark:border-slate-700"
+              className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-xl text-sm font-medium transition-all border border-slate-200 dark:border-slate-700"
             >
               <Github size={15} /> GitHub
             </a>
@@ -177,64 +341,124 @@ export default function Page() {
               href={CV.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-xl text-sm font-medium transition-colors border border-slate-200 dark:border-slate-700"
+              className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-slate-700 dark:text-slate-200 px-6 py-3 rounded-xl text-sm font-medium transition-all border border-slate-200 dark:border-slate-700"
             >
               <Linkedin size={15} /> LinkedIn
             </a>
-          </div>
+          </motion.div>
+
+          {/* stats */}
+          <motion.div
+            custom={0.65}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="mt-14 flex items-center justify-center gap-10 flex-wrap"
+          >
+            {CV.stats.map(({ value, label }) => (
+              <div key={label} className="text-center">
+                <div className="text-3xl font-bold text-slate-900 dark:text-slate-100">{value}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-500 mt-0.5 whitespace-nowrap">{label}</div>
+              </div>
+            ))}
+          </motion.div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600 text-xs">
+        <motion.div
+          custom={0.9}
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600 text-xs"
+        >
           <div className="flex items-center gap-1.5">
             <MapPin size={12} />
             <span>{CV.location} · {CV.permit}</span>
           </div>
-          <ChevronDown size={16} className="animate-bounce mt-1" />
-        </div>
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown size={16} className="mt-1" />
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* ── Main content ────────────────────────────────────────────────── */}
+      {/* ── Main ──────────────────────────────────────────────────────── */}
       <main className="max-w-5xl mx-auto px-6 pb-24">
 
         {/* About */}
         <section id="about" className="py-20">
           <SectionHeading index="01" title="About" />
           <div className="grid md:grid-cols-[1fr_260px] gap-10 items-start">
-            <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, ease }}
+              className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed"
+            >
               {CV.summary}
-            </p>
-            <div className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400">
-              <a href={`mailto:${CV.email}`} className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
-                <Mail size={14} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
-                {CV.email}
-              </a>
-              <a href={`tel:${CV.phone}`} className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
-                <Phone size={14} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
-                {CV.phone}
-              </a>
-              <a href={CV.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
-                <Github size={14} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
-                github.com/idrisay
-              </a>
-              <a href={CV.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
-                <Linkedin size={14} className="text-indigo-500 dark:text-indigo-400 shrink-0" />
-                linkedin.com/in/idris-ay
-              </a>
-            </div>
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: 0.1, ease }}
+              className="flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-400"
+            >
+              {[
+                { icon: Mail, label: CV.email, href: `mailto:${CV.email}` },
+                { icon: Phone, label: CV.phone, href: `tel:${CV.phone}` },
+                { icon: Github, label: "github.com/idrisay", href: CV.github },
+                { icon: Linkedin, label: "linkedin.com/in/idris-ay", href: CV.linkedin },
+              ].map(({ icon: Icon, label, href }) => (
+                <a key={label} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 hover:text-slate-900 dark:hover:text-slate-200 transition-colors group"
+                >
+                  <Icon size={14} className="text-indigo-500 dark:text-indigo-400 shrink-0 group-hover:scale-110 transition-transform" />
+                  {label}
+                </a>
+              ))}
+            </motion.div>
           </div>
         </section>
 
         {/* Skills */}
         <section id="skills" className="py-20 border-t border-slate-200 dark:border-slate-800/60">
           <SectionHeading index="02" title="Skills" />
-          <div className="flex flex-col gap-5">
-            {CV.skills.map(({ category, items }) => (
-              <div key={category} className="grid md:grid-cols-[140px_1fr] gap-3 items-start">
+          <div className="flex flex-col gap-6">
+            {CV.skills.map(({ category, items }, rowIdx) => (
+              <motion.div
+                key={category}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: rowIdx * 0.06, ease }}
+                className="grid md:grid-cols-[140px_1fr] gap-3 items-start"
+              >
                 <span className="text-slate-500 text-sm font-medium pt-0.5">{category}</span>
-                <div className="flex flex-wrap gap-2">
-                  {items.map((item) => <Pill key={item}>{item}</Pill>)}
-                </div>
-              </div>
+                <motion.div
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={{ visible: { transition: { staggerChildren: 0.045 } } }}
+                  className="flex flex-wrap gap-2"
+                >
+                  {items.map((item) => (
+                    <motion.span
+                      key={item}
+                      variants={{
+                        hidden: { opacity: 0, scale: 0.75 },
+                        visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 280, damping: 18 } },
+                      }}
+                    >
+                      <Pill>{item}</Pill>
+                    </motion.span>
+                  ))}
+                </motion.div>
+              </motion.div>
             ))}
           </div>
         </section>
@@ -246,12 +470,25 @@ export default function Page() {
             <div className="absolute left-0 top-2 bottom-0 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
             <div className="flex flex-col gap-8">
               {CV.experience.map((job, i) => (
-                <div key={i} className="relative md:pl-10">
-                  <div className="absolute left-[-4px] top-2 w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-white dark:ring-slate-950 hidden md:block" />
-                  <div className="bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -28 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.55, delay: i * 0.06, ease }}
+                  className="relative md:pl-10"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ type: "spring", stiffness: 400, damping: 18, delay: 0.15 + i * 0.06 }}
+                    className="absolute left-[-5px] top-2.5 w-2.5 h-2.5 rounded-full bg-indigo-500 ring-4 ring-white dark:ring-slate-950 hidden md:block"
+                  />
+                  <div className="group bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:border-indigo-300 dark:hover:border-indigo-800 hover:shadow-lg hover:shadow-indigo-500/5 dark:hover:shadow-indigo-950/30 transition-all duration-300">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
                       <div>
-                        <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-base">{job.company}</h3>
+                        <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-base group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{job.company}</h3>
                         <p className="text-indigo-600 dark:text-indigo-400 text-sm mt-0.5">{job.role}</p>
                       </div>
                       <span className="text-slate-500 text-xs font-mono bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full whitespace-nowrap">
@@ -270,7 +507,7 @@ export default function Page() {
                       ))}
                     </ul>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -280,48 +517,79 @@ export default function Page() {
         <section id="education" className="py-20 border-t border-slate-200 dark:border-slate-800/60">
           <SectionHeading index="04" title="Education & Languages" />
           <div className="grid md:grid-cols-2 gap-6">
-
-            <div className="bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-mono uppercase tracking-widest mb-3">Education</p>
-              <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-base mb-1">{CV.education.degree}</h3>
-              <p className="text-slate-500 text-sm mb-2">{CV.education.period}</p>
-              <p className="text-indigo-600 dark:text-indigo-400 text-sm">{CV.education.detail}</p>
-            </div>
-
-            <div className="bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-              <p className="text-slate-400 dark:text-slate-500 text-xs font-mono uppercase tracking-widest mb-3">Languages</p>
-              <div className="flex flex-col gap-3">
-                {CV.languages.map(({ lang, level }) => (
-                  <div key={lang} className="flex items-center justify-between">
-                    <span className="text-slate-800 dark:text-slate-200 text-sm font-medium">{lang}</span>
-                    <Pill>{level}</Pill>
+            {[
+              {
+                label: "Education",
+                content: (
+                  <>
+                    <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-base mb-1">{CV.education.degree}</h3>
+                    <p className="text-slate-500 text-sm mb-2">{CV.education.period}</p>
+                    <p className="text-indigo-600 dark:text-indigo-400 text-sm">{CV.education.detail}</p>
+                  </>
+                ),
+              },
+              {
+                label: "Languages",
+                content: (
+                  <div className="flex flex-col gap-3">
+                    {CV.languages.map(({ lang, level }) => (
+                      <div key={lang} className="flex items-center justify-between">
+                        <span className="text-slate-800 dark:text-slate-200 text-sm font-medium">{lang}</span>
+                        <Pill>{level}</Pill>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-
+                ),
+              },
+            ].map(({ label, content }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 28, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease }}
+                className="bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:border-indigo-300 dark:hover:border-indigo-800 hover:shadow-lg hover:shadow-indigo-500/5 dark:hover:shadow-indigo-950/30 transition-all duration-300"
+              >
+                <p className="text-slate-400 dark:text-slate-500 text-xs font-mono uppercase tracking-widest mb-3">{label}</p>
+                {content}
+              </motion.div>
+            ))}
           </div>
         </section>
       </main>
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
+      {/* ── Footer ────────────────────────────────────────────────────── */}
       <footer className="border-t border-slate-200 dark:border-slate-800/60 py-8">
         <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400 dark:text-slate-600">
-          <span>Built by Idris Ay</span>
-          <div className="flex items-center gap-5">
-            <a href={CV.github} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 dark:hover:text-slate-400 transition-colors flex items-center gap-1.5">
-              <Github size={14} /> GitHub
-            </a>
-            <a href={CV.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-slate-700 dark:hover:text-slate-400 transition-colors flex items-center gap-1.5">
-              <Linkedin size={14} /> LinkedIn
-            </a>
-            <a href={`mailto:${CV.email}`} className="hover:text-slate-700 dark:hover:text-slate-400 transition-colors flex items-center gap-1.5">
-              <Mail size={14} /> Email
-            </a>
-          </div>
+          <motion.span
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            Built by Idris Ay
+          </motion.span>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex items-center gap-5"
+          >
+            {[
+              { href: CV.github, icon: Github, label: "GitHub" },
+              { href: CV.linkedin, icon: Linkedin, label: "LinkedIn" },
+              { href: `mailto:${CV.email}`, icon: Mail, label: "Email" },
+            ].map(({ href, icon: Icon, label }) => (
+              <a key={label} href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
+                className="hover:text-slate-700 dark:hover:text-slate-400 transition-colors flex items-center gap-1.5 group"
+              >
+                <Icon size={14} className="group-hover:scale-110 transition-transform" /> {label}
+              </a>
+            ))}
+          </motion.div>
         </div>
       </footer>
-
     </div>
   );
 }
