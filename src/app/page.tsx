@@ -9,7 +9,18 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { Github, Linkedin, Mail, MapPin, Phone, ChevronDown, Sparkles } from "lucide-react";
+import {
+  Github,
+  Linkedin,
+  Mail,
+  MapPin,
+  Phone,
+  ChevronDown,
+  Sparkles,
+  Mic,
+  ExternalLink,
+  ArrowRight,
+} from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 
 // ── data ──────────────────────────────────────────────────────────────────────
@@ -22,15 +33,41 @@ const CV = {
   location: "Zurich, Switzerland",
   permit: "Swiss B Permit",
   summary:
-    "Software engineer with 6+ years of experience building production web applications across the full stack. Strong in React, TypeScript, and modern frontend tooling, with solid backend depth in PHP/Laravel and Node.js. Currently shipping core features of an e-learning platform at Evulpo as part of a 30-person team. Previously led a frontend team on an EU-funded project and taught full-stack development to bootcamp cohorts. Comfortable owning features end to end — from design hand-off through deployment and monitoring.",
+    "Software engineer with 6+ years of experience building production web applications across the full stack. Strong in React, TypeScript, and modern frontend tooling, with solid backend depth in PHP/Laravel and Node.js. Currently shipping core features of an e-learning platform at Evulpo as part of a 30-person team. Previously led a frontend team on an EU-funded project and taught full-stack development to bootcamp cohorts. Comfortable owning features end to end — from design hand-off through deployment and monitoring. Outside client work I design and ship my own products, most recently VoiceSmith, an open-source macOS dictation app written in Swift.",
   stats: [
     { value: "6+", label: "Years experience" },
     { value: "5", label: "Positions held" },
     { value: "3", label: "Languages spoken" },
   ],
+  projects: [
+    {
+      name: "VoiceSmith",
+      tagline: "Speak naturally. Write beautifully.",
+      period: "2026",
+      blurb:
+        "A macOS menu bar app that turns dictation into finished writing. Double-tap Shift in any application, speak, double-tap again — the transcript is cleaned up and written straight into the field you were already typing in.",
+      bullets: [
+        "Fifteen speech and text backends behind two Swift protocols — Apple Speech, Whisper.cpp and Ollama run entirely on-device; OpenAI, Anthropic, Groq and others use your own key.",
+        "Global double-tap hotkeys and text insertion through the macOS Accessibility API, with dictated to-dos parsed into Apple Reminders via EventKit.",
+        "No account, no backend, no telemetry — keys live in the Keychain and requests go straight to the provider.",
+        "Universal binaries built, packaged and released by a GitHub Actions workflow.",
+      ],
+      before: "so um hi Sarah I I just wanted to say the deck is basically ready",
+      after: "Hi Sarah, I just wanted to say the deck is ready.",
+      tech: ["Swift 6", "SwiftUI", "AppKit", "SwiftData", "AVFoundation", "Speech", "EventKit", "GitHub Actions"],
+      metrics: [
+        { value: "7.6k", label: "lines of Swift" },
+        { value: "15", label: "AI providers" },
+        { value: "99", label: "languages" },
+      ],
+      site: "https://voicesmith.idrisay.ch",
+      repo: "https://github.com/idrisay/VoiceSmith",
+      badges: ["macOS 14+", "Open source · MIT"],
+    },
+  ],
   skills: [
-    { category: "Languages", items: ["TypeScript", "JavaScript", "PHP", "Python", "HTML5", "CSS3", "SASS"] },
-    { category: "Frontend", items: ["React", "Next.js", "React Native", "Tailwind CSS", "Material-UI", "Storybook"] },
+    { category: "Languages", items: ["TypeScript", "JavaScript", "Swift", "PHP", "Python", "HTML5", "CSS3", "SASS"] },
+    { category: "Frontend", items: ["React", "Next.js", "React Native", "SwiftUI", "Tailwind CSS", "Material-UI", "Storybook"] },
     { category: "Backend", items: ["Laravel", "Livewire", "Node.js", "Django", "Flask", "REST APIs"] },
     { category: "Databases", items: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"] },
     { category: "DevOps & Tools", items: ["Docker", "Jenkins", "AWS", "Git", "Sentry", "Stripe", "Firebase", "Postman"] },
@@ -167,9 +204,136 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ProjectCard({
+  project,
+  delay,
+}: {
+  project: (typeof CV.projects)[number];
+  delay: number;
+}) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.55, delay, ease }}
+      className="group relative overflow-hidden bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 hover:border-indigo-300 dark:hover:border-indigo-800 hover:shadow-lg hover:shadow-indigo-500/5 dark:hover:shadow-indigo-950/30 transition-all duration-300"
+    >
+      {/* header */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-900 shrink-0">
+            <Mic size={18} className="text-indigo-600 dark:text-indigo-400" />
+          </span>
+          <div>
+            <h3 className="text-slate-900 dark:text-slate-100 font-semibold text-lg leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+              {project.name}
+            </h3>
+            <p className="text-indigo-600 dark:text-indigo-400 text-sm mt-0.5">
+              {project.tagline}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {project.badges.map((b) => (
+            <span
+              key={b}
+              className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-full whitespace-nowrap"
+            >
+              {b}
+            </span>
+          ))}
+          <span className="text-slate-500 text-xs font-mono bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+            {project.period}
+          </span>
+        </div>
+      </div>
+
+      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mt-5">
+        {project.blurb}
+      </p>
+
+      {/* before / after */}
+      <div className="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/60 p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">
+            You say
+          </p>
+          <p className="text-slate-500 dark:text-slate-500 text-[13px] leading-snug italic">
+            &ldquo;{project.before}&rdquo;
+          </p>
+        </div>
+        <ArrowRight
+          size={16}
+          className="text-indigo-500 dark:text-indigo-400 shrink-0 rotate-90 sm:rotate-0 self-center"
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-slate-600 mb-1.5">
+            It writes
+          </p>
+          <p className="text-slate-800 dark:text-slate-200 text-[13px] leading-snug font-medium">
+            {project.after}
+          </p>
+        </div>
+      </div>
+
+      <ul className="space-y-2 mt-5">
+        {project.bullets.map((b, j) => (
+          <li
+            key={j}
+            className="flex gap-2.5 text-slate-600 dark:text-slate-400 text-sm leading-relaxed"
+          >
+            <span className="text-indigo-500 mt-0.5 shrink-0">▹</span>
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* metrics */}
+      <div className="flex items-center gap-8 mt-6 flex-wrap">
+        {project.metrics.map(({ value, label }) => (
+          <div key={label}>
+            <div className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              {value}
+            </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-500 mt-0.5 whitespace-nowrap">
+              {label}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2 mt-6">
+        {project.tech.map((t) => (
+          <Pill key={t}>{t}</Pill>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mt-6">
+        <a
+          href={project.site}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg shadow-indigo-500/20 dark:shadow-indigo-950/50"
+        >
+          <ExternalLink size={14} /> Visit site
+        </a>
+        <a
+          href={project.repo}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-slate-200 dark:border-slate-700"
+        >
+          <Github size={14} /> Source
+        </a>
+      </div>
+    </motion.article>
+  );
+}
+
 // ── page ──────────────────────────────────────────────────────────────────────
 
-const NAV_SECTIONS = ["about", "skills", "experience", "education"] as const;
+const NAV_SECTIONS = ["about", "skills", "projects", "experience", "education"] as const;
 
 export default function Page() {
   // cursor spotlight
@@ -503,9 +667,19 @@ export default function Page() {
           </div>
         </section>
 
+        {/* Projects */}
+        <section id="projects" className="py-20 border-t border-slate-200 dark:border-slate-800/60">
+          <SectionHeading index="03" title="Projects" />
+          <div className="flex flex-col gap-6">
+            {CV.projects.map((p, i) => (
+              <ProjectCard key={p.name} project={p} delay={i * 0.08} />
+            ))}
+          </div>
+        </section>
+
         {/* Experience */}
         <section id="experience" className="py-20 border-t border-slate-200 dark:border-slate-800/60">
-          <SectionHeading index="03" title="Experience" />
+          <SectionHeading index="04" title="Experience" />
           <div className="relative">
             <div className="absolute left-0 top-2 bottom-0 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
             <div className="flex flex-col gap-8">
@@ -555,7 +729,7 @@ export default function Page() {
 
         {/* Education + Languages */}
         <section id="education" className="py-20 border-t border-slate-200 dark:border-slate-800/60">
-          <SectionHeading index="04" title="Education & Languages" />
+          <SectionHeading index="05" title="Education & Languages" />
           <div className="grid md:grid-cols-2 gap-6">
             {[
               {
