@@ -16,6 +16,13 @@ body {
   color: #f1f5f9;
 }
 
+/* Visible, consistent focus ring for keyboard users across the whole site. */
+:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .bg-grid {
   background-image:
     linear-gradient(rgba(99, 102, 241, 0.07) 1px, transparent 1px),
@@ -28,4 +35,198 @@ body {
     linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
   background-size: 64px 64px;
+}
+
+/* Skip link — first tab stop, only visible while focused. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+/* ── résumé / ATS view ─────────────────────────────────────────────────────── */
+
+.resume-h2 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4f46e5;
+  border-bottom: 1px solid #cbd5e1;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.resume a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── reduced motion ────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── print / ATS ───────────────────────────────────────────────────────────── */
+
+@page {
+  size: A4;
+  margin: 14mm 14mm;
+}
+
+@media print {
+  html,
+  body,
+  .dark body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10.5pt;
+  }
+
+  /* Chrome/Safari: keep authored colours off, let the browser print plain */
+  * {
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Framer Motion leaves elements at opacity:0 / translated until they animate
+     in — force them to their resting state so nothing prints blank. Scoped to the
+     animated page (.motion-page) so it cannot flatten anything on /resume. */
+  .motion-page [style*="opacity"],
+  .motion-page [style*="transform"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Chrome (nav, footer, decorative layers) is dropped from print. */
+  header,
+  footer,
+  nav,
+  .skip-link,
+  .print-hide,
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  /* .bg-grid sits on the page root — strip the pattern, keep the element. */
+  .bg-grid {
+    background-image: none !important;
+  }
+
+  /* …but the résumé's own document header must still print. */
+  .resume header {
+    display: block !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  section {
+    border: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    break-inside: auto;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: #000 !important;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  article,
+  li,
+  dl > div,
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  a {
+    color: #000 !important;
+    text-decoration: underline;
+  }
+
+  /* Spell out destinations that are not already written out on the page. */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8.5pt;
+    color: #444;
+    word-break: break-all;
+  }
+
+  /* The résumé view already prints its URLs as visible text. */
+  .resume a[href^="http"]::after,
+  .resume a[href^="mailto"]::after,
+  .resume a[href^="tel"]::after {
+    content: "";
+  }
+
+  /* Keep the résumé's indigo section rules — ATS parsers read text, humans read colour. */
+  .resume-h2 {
+    border-bottom-color: #999 !important;
+  }
+
+  /* Gradient-clipped text prints as a solid block — flatten it to ink. */
+  .bg-clip-text {
+    background-image: none !important;
+    -webkit-text-fill-color: #000 !important;
+    color: #000 !important;
+  }
+
+  /* The hero is a full-viewport panel on screen; on paper it just wastes a sheet. */
+  .print-tight {
+    min-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 1rem !important;
+  }
+
+  /* Absolutely-positioned screen decoration has to rejoin the flow on paper. */
+  .print-static {
+    position: static !important;
+    transform: none !important;
+    margin: 1.25rem auto 0 !important;
+  }
+
+  /* Cards lose their chrome in print. Scoped to main so hero buttons keep their
+     shape and the résumé (which uses neither class) is untouched. */
+  main .rounded-2xl {
+    border: 0 !important;
+    background: transparent !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
