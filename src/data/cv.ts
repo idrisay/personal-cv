@@ -34,12 +34,16 @@ export type Project = {
   period: string;
   blurb: string;
   bullets: string[];
-  before: string;
-  after: string;
+  icon: "mic" | "terminal";
+  /** Optional dictation-style example; the card hides it when absent. */
+  before?: string;
+  after?: string;
   tech: string[];
   metrics: { value: string; label: string }[];
   site: string;
   repo: string;
+  /** Label for the repo link, when it isn't the source (e.g. a releases repo). */
+  repoLabel?: string;
   badges: string[];
 };
 
@@ -130,33 +134,58 @@ const en: CVContent = {
   },
   about: {
     summary:
-      "I ship production web applications end to end — from design hand-off through deployment and monitoring. Six years across React, TypeScript, PHP/Laravel and Node.js, currently building core learning, billing and localisation features at Evulpo inside a 30+ person product team with 10+ engineers. Outside client work I design and ship my own products, most recently VoiceSmith, an open-source macOS dictation app written in Swift.",
+      "I ship production web applications end to end — from design hand-off through deployment and monitoring. Six years across React, TypeScript, PHP/Laravel and Node.js, currently building core learning, billing and localisation features at Evulpo inside a 30+ person product team with 10+ engineers. Outside client work I design and ship my own products: Kovan, a macOS app that shows which pull requests and tickets are blocked on you and hands them to coding agents, and VoiceSmith, an open-source macOS dictation app written in Swift.",
     story:
       "I started in electrical engineering, graduated second in my class, then taught myself the web and spent 18 months teaching it to 250+ bootcamp students — still the fastest way I know to learn something properly. From there: leading a frontend team of five on an EU-funded project, and since 2022 full-stack engineering in Zurich at Evulpo.",
   },
   now: {
     label: "Now",
     items: [
-      "Shipping VoiceSmith 1.x",
+      "Shipping Kovan 0.x",
       "Improving my German toward B1",
       "Exploring SwiftUI",
     ],
   },
   skills: [
     { category: "Languages", items: ["TypeScript", "JavaScript", "Swift", "PHP", "Python", "HTML5", "CSS3", "SASS"] },
-    { category: "Frontend", items: ["React", "Next.js", "React Native", "SwiftUI", "Tailwind CSS", "Material-UI", "Storybook"] },
+    { category: "Frontend", items: ["React", "Next.js", "React Native", "Electron", "SwiftUI", "Tailwind CSS", "Material-UI", "Storybook"] },
     { category: "Backend", items: ["Laravel", "Livewire", "Node.js", "Django", "Flask", "REST APIs"] },
     { category: "Databases", items: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"] },
     { category: "DevOps & Tools", items: ["Docker", "Jenkins", "AWS", "Git", "Sentry", "Stripe", "Firebase", "Postman"] },
-    { category: "AI Tooling", items: ["GitHub Copilot", "Cursor", "Claude", "ChatGPT"] },
+    { category: "AI Tooling", items: ["Claude Code", "Codex", "Cursor", "GitHub Copilot", "ChatGPT"] },
     { category: "Methodologies", items: ["Agile", "Scrum", "Kanban"] },
   ],
   skillsUI: { dailyUse: "Daily use", aiCategory: "AI Tooling" },
   projects: [
     {
+      name: "Kovan",
+      tagline: "See what's blocked on you. Hand it to an agent.",
+      period: "2026",
+      icon: "terminal",
+      blurb:
+        "A macOS menu bar app that watches GitHub pull requests, Jira tickets and Sentry errors, shows which ones are waiting on you and why, and hands any of them to Claude Code, Codex or OpenCode running in a real terminal beside it.",
+      bullets: [
+        "Polls GitHub, Jira and Sentry from the Electron main process, groups pull requests by who they're blocked on (conflicts, failing checks, changes requested) and sends a notification only when something changes.",
+        "Runs coding agents in real terminals through node-pty; sessions survive quitting the app, report their own state, and leave a run archive with the prompt, report and screenshots.",
+        "Built-in workspace with a CodeMirror editor, diffs and file search, plus on-device dictation through a small Swift helper.",
+        "No account and no server: tokens are encrypted with the macOS Keychain, and prompts reach the agent as a single argument, never as shell code.",
+      ],
+      tech: ["TypeScript", "Electron", "React", "node-pty", "xterm.js", "CodeMirror", "Swift", "Vitest"],
+      metrics: [
+        { value: "42k", label: "lines of TypeScript" },
+        { value: "3", label: "coding agents" },
+        { value: "3", label: "integrations" },
+      ],
+      site: "https://kovan.idrisay.ch",
+      repo: "https://github.com/idrisay/kovan-releases",
+      repoLabel: "Releases",
+      badges: ["macOS 11+ · Apple silicon", "Free download"],
+    },
+    {
       name: "VoiceSmith",
       tagline: "Speak naturally. Write beautifully.",
       period: "2026",
+      icon: "mic",
       blurb:
         "A macOS menu bar app that turns dictation into finished writing. Double-tap Shift in any application, speak, double-tap again — the transcript is cleaned up and written straight into the field you were already typing in.",
       bullets: [
@@ -278,6 +307,7 @@ const en: CVContent = {
       "Laravel",
       "Node.js",
       "Swift",
+      "Electron",
       "Frontend Engineer Switzerland",
     ],
   },
@@ -321,33 +351,58 @@ const de: CVContent = {
   },
   about: {
     summary:
-      "Ich bringe Web-Anwendungen end-to-end in Produktion — von der Designübergabe über das Deployment bis zum Monitoring. Sechs Jahre mit React, TypeScript, PHP/Laravel und Node.js; aktuell entwickle ich bei Evulpo zentrale Lern-, Abrechnungs- und Lokalisierungsfunktionen in einem über 30-köpfigen Produktteam mit mehr als 10 Entwicklern. Daneben baue ich eigene Produkte, zuletzt VoiceSmith, eine Open-Source-Diktier-App für macOS in Swift.",
+      "Ich bringe Web-Anwendungen end-to-end in Produktion — von der Designübergabe über das Deployment bis zum Monitoring. Sechs Jahre mit React, TypeScript, PHP/Laravel und Node.js; aktuell entwickle ich bei Evulpo zentrale Lern-, Abrechnungs- und Lokalisierungsfunktionen in einem über 30-köpfigen Produktteam mit mehr als 10 Entwicklern. Daneben baue ich eigene Produkte: Kovan, eine macOS-App, die zeigt, welche Pull Requests und Tickets auf einen warten, und sie an Coding-Agents übergibt, sowie VoiceSmith, eine Open-Source-Diktier-App für macOS in Swift.",
     story:
       "Ich komme aus der Elektrotechnik, habe als Zweitbester meines Jahrgangs abgeschlossen, mir das Web selbst beigebracht und es anschliessend 18 Monate lang über 250 Bootcamp-Teilnehmenden vermittelt — für mich bis heute der schnellste Weg, etwas wirklich zu verstehen. Danach: Leitung eines fünfköpfigen Frontend-Teams in einem EU-geförderten Projekt und seit 2022 Full-Stack-Entwicklung bei Evulpo in Zürich.",
   },
   now: {
     label: "Aktuell",
     items: [
-      "VoiceSmith 1.x veröffentlichen",
+      "Kovan 0.x weiterentwickeln",
       "Deutsch lernen — A2, auf dem Weg zu B1",
       "SwiftUI vertiefen",
     ],
   },
   skills: [
     { category: "Programmiersprachen", items: ["TypeScript", "JavaScript", "Swift", "PHP", "Python", "HTML5", "CSS3", "SASS"] },
-    { category: "Frontend", items: ["React", "Next.js", "React Native", "SwiftUI", "Tailwind CSS", "Material-UI", "Storybook"] },
+    { category: "Frontend", items: ["React", "Next.js", "React Native", "Electron", "SwiftUI", "Tailwind CSS", "Material-UI", "Storybook"] },
     { category: "Backend", items: ["Laravel", "Livewire", "Node.js", "Django", "Flask", "REST APIs"] },
     { category: "Datenbanken", items: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"] },
     { category: "DevOps & Tools", items: ["Docker", "Jenkins", "AWS", "Git", "Sentry", "Stripe", "Firebase", "Postman"] },
-    { category: "AI-Tooling", items: ["GitHub Copilot", "Cursor", "Claude", "ChatGPT"] },
+    { category: "AI-Tooling", items: ["Claude Code", "Codex", "Cursor", "GitHub Copilot", "ChatGPT"] },
     { category: "Methoden", items: ["Agile", "Scrum", "Kanban"] },
   ],
   skillsUI: { dailyUse: "Täglich im Einsatz", aiCategory: "AI-Tooling" },
   projects: [
     {
+      name: "Kovan",
+      tagline: "Sehen, was auf dich wartet. An einen Agent übergeben.",
+      period: "2026",
+      icon: "terminal",
+      blurb:
+        "Eine macOS-Menüleisten-App, die GitHub-Pull-Requests, Jira-Tickets und Sentry-Fehler beobachtet, zeigt, welche davon auf einen warten und warum, und jede davon an Claude Code, Codex oder OpenCode in einem echten Terminal direkt daneben übergibt.",
+      bullets: [
+        "Fragt GitHub, Jira und Sentry aus dem Electron-Main-Prozess ab, gruppiert Pull Requests danach, auf wen sie warten (Konflikte, fehlgeschlagene Checks, angeforderte Änderungen), und benachrichtigt nur bei echten Änderungen.",
+        "Startet Coding-Agents in echten Terminals über node-pty; Sessions laufen nach dem Beenden der App weiter, melden ihren eigenen Status und hinterlassen ein Archiv mit Prompt, Bericht und Screenshots.",
+        "Integrierter Workspace mit CodeMirror-Editor, Diffs und Dateisuche, dazu lokales Diktieren über einen kleinen Swift-Helfer.",
+        "Kein Konto, kein Server: Tokens werden mit dem macOS-Schlüsselbund verschlüsselt, und Prompts erreichen den Agent als einzelnes Argument, nie als Shell-Code.",
+      ],
+      tech: ["TypeScript", "Electron", "React", "node-pty", "xterm.js", "CodeMirror", "Swift", "Vitest"],
+      metrics: [
+        { value: "42k", label: "Zeilen TypeScript" },
+        { value: "3", label: "Coding-Agents" },
+        { value: "3", label: "Integrationen" },
+      ],
+      site: "https://kovan.idrisay.ch",
+      repo: "https://github.com/idrisay/kovan-releases",
+      repoLabel: "Releases",
+      badges: ["macOS 11+ · Apple silicon", "Kostenloser Download"],
+    },
+    {
       name: "VoiceSmith",
       tagline: "Natürlich sprechen. Sauber schreiben.",
       period: "2026",
+      icon: "mic",
       blurb:
         "Eine macOS-Menüleisten-App, die Diktate in fertigen Text verwandelt. In beliebiger Anwendung zweimal die Umschalttaste tippen, sprechen, erneut zweimal tippen — das Transkript wird bereinigt und direkt in das Feld geschrieben, in dem man ohnehin schon getippt hat.",
       bullets: [
@@ -470,6 +525,7 @@ const de: CVContent = {
       "Laravel",
       "Node.js",
       "Swift",
+      "Electron",
       "Frontend Entwickler Schweiz",
     ],
   },

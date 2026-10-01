@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Sparkles,
   Mic,
+  SquareTerminal,
   ExternalLink,
   ArrowRight,
   FileDown,
@@ -138,6 +139,7 @@ function ProjectCard({
   labels: { youSay: string; itWrites: string; visit: string; source: string };
   delay: number;
 }) {
+  const ProjectIcon = project.icon === "terminal" ? SquareTerminal : Mic;
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -149,7 +151,7 @@ function ProjectCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-900 shrink-0">
-            <Mic size={18} className="text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+            <ProjectIcon size={18} className="text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
           </span>
           <div>
             <h3 className="text-slate-900 dark:text-slate-50 font-semibold text-lg leading-tight">
@@ -178,33 +180,35 @@ function ProjectCard({
       </p>
 
       {/* before → after */}
-      <div className="mt-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 overflow-hidden">
-        <div className="grid sm:grid-cols-[1fr_auto_1fr] items-stretch">
-          <div className="p-4">
-            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500 mb-2">
-              {labels.youSay}
-            </p>
-            <p className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed italic">
-              &ldquo;{project.before}&rdquo;
-            </p>
-          </div>
-          <div className="flex items-center justify-center px-4 py-2 sm:py-4 border-y sm:border-y-0 sm:border-x border-slate-200 dark:border-slate-800">
-            <ArrowRight
-              size={16}
-              aria-hidden="true"
-              className="text-indigo-500 dark:text-indigo-400 shrink-0 rotate-90 sm:rotate-0"
-            />
-          </div>
-          <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20">
-            <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400 mb-2">
-              {labels.itWrites}
-            </p>
-            <p className="text-slate-800 dark:text-slate-100 text-[13px] leading-relaxed font-medium">
-              {project.after}
-            </p>
+      {project.before && project.after && (
+        <div className="mt-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 overflow-hidden">
+          <div className="grid sm:grid-cols-[1fr_auto_1fr] items-stretch">
+            <div className="p-4">
+              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500 mb-2">
+                {labels.youSay}
+              </p>
+              <p className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed italic">
+                &ldquo;{project.before}&rdquo;
+              </p>
+            </div>
+            <div className="flex items-center justify-center px-4 py-2 sm:py-4 border-y sm:border-y-0 sm:border-x border-slate-200 dark:border-slate-800">
+              <ArrowRight
+                size={16}
+                aria-hidden="true"
+                className="text-indigo-500 dark:text-indigo-400 shrink-0 rotate-90 sm:rotate-0"
+              />
+            </div>
+            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20">
+              <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-indigo-500 dark:text-indigo-400 mb-2">
+                {labels.itWrites}
+              </p>
+              <p className="text-slate-800 dark:text-slate-100 text-[13px] leading-relaxed font-medium">
+                {project.after}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <ul className="space-y-2 mt-6">
         {project.bullets.map((b, j) => (
@@ -252,7 +256,7 @@ function ProjectCard({
           rel="noopener noreferrer"
           className={`inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-[0.98] text-slate-700 dark:text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-200 dark:border-slate-700 ${focusRing}`}
         >
-          <Github size={14} aria-hidden="true" /> {labels.source}
+          <Github size={14} aria-hidden="true" /> {project.repoLabel ?? labels.source}
         </a>
       </div>
     </motion.article>
