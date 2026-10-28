@@ -83,6 +83,18 @@ export type CVContent = {
   languages: { lang: string; level: string }[];
   languageNote?: string;
   footer: { built: string; printVersion: string };
+  /** Copy used only by the kinetic home page. */
+  kinetic: {
+    buildPrefix: string;
+    buildWords: string[];
+    letsTalk: string;
+    motionOff: string;
+    motionOn: string;
+    counters: { value: number; suffix: string; label: string }[];
+    workTitle: [string, string];
+    careerTitle: string;
+    contactTitle: [string, string];
+  };
   resume: {
     profile: string;
     skills: string;
@@ -283,6 +295,22 @@ const en: CVContent = {
   footer: {
     built: "Built by Idris Ay",
     printVersion: "Print / ATS version",
+  },
+  kinetic: {
+    buildPrefix: "I build",
+    buildWords: ["web apps.", "Mac apps.", "dev tools.", "teams."],
+    letsTalk: "Let's talk",
+    motionOff: "Motion off",
+    motionOn: "Motion on",
+    counters: [
+      { value: 6, suffix: "+", label: "years in production web" },
+      { value: 250, suffix: "+", label: "bootcamp students taught" },
+      { value: 42, suffix: "k", label: "lines of TypeScript in Kovan" },
+      { value: 99, suffix: "", label: "languages VoiceSmith hears" },
+    ],
+    workTitle: ["Selected", "work"],
+    careerTitle: "Career",
+    contactTitle: ["Let's make", "something."],
   },
   resume: {
     profile: "Profile",
@@ -501,6 +529,22 @@ const de: CVContent = {
   footer: {
     built: "Gebaut von Idris Ay",
     printVersion: "Druck- / ATS-Version",
+  },
+  kinetic: {
+    buildPrefix: "Ich baue",
+    buildWords: ["Web-Apps.", "Mac-Apps.", "Dev-Tools.", "Teams."],
+    letsTalk: "Schreib mir",
+    motionOff: "Animation aus",
+    motionOn: "Animation an",
+    counters: [
+      { value: 6, suffix: "+", label: "Jahre Web in Produktion" },
+      { value: 250, suffix: "+", label: "Bootcamp-Teilnehmende unterrichtet" },
+      { value: 42, suffix: "k", label: "Zeilen TypeScript in Kovan" },
+      { value: 99, suffix: "", label: "Sprachen, die VoiceSmith versteht" },
+    ],
+    workTitle: ["Ausgewählte", "Projekte"],
+    careerTitle: "Werdegang",
+    contactTitle: ["Lass uns etwas", "bauen."],
   },
   resume: {
     profile: "Profil",

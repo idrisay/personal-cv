@@ -74,6 +74,127 @@ body {
   text-underline-offset: 2px;
 }
 
+/* ── kinetic home page ─────────────────────────────────────────────────────── */
+
+/* Dark page: paint the canvas behind overscroll too, but only on the home page. */
+html:has(.kt-root),
+body:has(.kt-root) {
+  background-color: #0b0b0c;
+}
+
+.kt-root {
+  --kt-bg: #0b0b0c;
+  --kt-ink: #f4f4f5;
+  --kt-muted: #a1a1aa;
+  --kt-line: #27272a;
+  --kt-card: #18181b;
+  --kt-accent: #d4ff3a;
+  background: var(--kt-bg);
+  color: var(--kt-ink);
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+}
+
+.kt-root .font-mono {
+  font-family: var(--font-mono-kt), ui-monospace, monospace;
+}
+
+.kt-root :focus-visible {
+  outline-color: var(--kt-accent);
+}
+
+/* Each word in the slot is 1.1em tall; the last repeats the first so the loop is seamless. */
+@keyframes kt-slot {
+  0%, 18% { transform: translateY(0); }
+  25%, 43% { transform: translateY(-1.1em); }
+  50%, 68% { transform: translateY(-2.2em); }
+  75%, 93% { transform: translateY(-3.3em); }
+  100% { transform: translateY(-4.4em); }
+}
+@keyframes kt-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes kt-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes kt-blink {
+  50% { opacity: 0; }
+}
+
+.kt-slot { display: inline-block; animation: kt-slot 10s cubic-bezier(0.7, 0, 0.2, 1) infinite; }
+.kt-track { display: flex; width: max-content; animation: kt-marquee 28s linear infinite; }
+.kt-track-rev { animation-direction: reverse; animation-duration: 36s; }
+.kt-spin { animation: kt-spin 18s linear infinite; }
+.kt-caret { animation: kt-blink 1s steps(1) infinite; }
+
+.kt-outline {
+  color: #3f3f46;
+}
+
+/* Scroll reveal — only once JS is running, so the server HTML is never invisible. */
+.kt-js .kt-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.kt-js .kt-reveal.kt-in {
+  opacity: 1;
+  transform: none;
+}
+/* The card hover lift has to win over the reveal's resting transform. */
+.kt-js .kt-card.kt-in:hover {
+  transform: translateY(-8px) rotate(-0.6deg);
+}
+
+.kt-row { transition: background-color 0.35s, color 0.35s; }
+.kt-row .kt-co {
+  display: inline-block;
+  color: #52525b;
+  transition: color 0.35s, transform 0.35s;
+}
+.kt-row:focus-within .kt-co,
+.kt-row[data-open="true"] .kt-co {
+  color: var(--kt-ink);
+}
+.kt-row .kt-arrow { display: inline-block; transition: transform 0.35s; }
+.kt-row .kt-dim { color: var(--kt-muted); transition: color 0.35s; }
+.kt-row:hover { background: var(--kt-accent); color: var(--kt-bg); }
+.kt-row:hover .kt-co { color: var(--kt-bg); transform: translateX(16px); }
+.kt-row:hover .kt-arrow { transform: rotate(-45deg); }
+.kt-row:hover .kt-dim { color: #27272a; }
+
+.kt-card { transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.5s; }
+.kt-card:hover { transform: translateY(-8px) rotate(-0.6deg); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5); }
+
+.kt-pill { transition: background-color 0.25s, color 0.25s, border-color 0.25s; }
+.kt-pill:hover { background: var(--kt-ink); color: var(--kt-bg); border-color: var(--kt-ink); }
+
+/* "Motion off" toggle: freeze every CSS animation and transition on the page. */
+.kt-calm .kt-reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.kt-calm *,
+.kt-calm *::before,
+.kt-calm *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-js .kt-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .kt-root *,
+  .kt-root *::before,
+  .kt-root *::after {
+    animation: none !important;
+  }
+}
+
 /* ── reduced motion ────────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -122,6 +243,24 @@ body {
      animated page (.motion-page) so it cannot flatten anything on /resume. */
   .motion-page [style*="opacity"],
   .motion-page [style*="transform"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* The kinetic page is dark on screen; on paper it is plain ink. */
+  .kt-root,
+  html:has(.kt-root),
+  body:has(.kt-root) {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .kt-root *,
+  .kt-root *::before,
+  .kt-root *::after {
+    animation: none !important;
+    background: transparent !important;
+    color: #000 !important;
     opacity: 1 !important;
     transform: none !important;
   }

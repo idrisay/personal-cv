@@ -1,7 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { CONTACT, cvData } from "@/data/cv";
+
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["400", "600", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono-kt",
+  display: "swap",
+});
 
 const SITE = CONTACT.site;
 const en = cvData.en;
@@ -68,10 +83,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },
-  ],
+  themeColor: "#0b0b0c",
 };
 
 const personSchema = {
@@ -117,7 +129,11 @@ const personSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`scroll-smooth ${display.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           type="application/ld+json"
